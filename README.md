@@ -17,8 +17,6 @@
 Использование
 Пример запроса:
 
-bash
-Копировать код
 curl --location 'http://localhost:8080/api/v1/calculate' \
 --header 'Content-Type: application/json' \
 --data '{
