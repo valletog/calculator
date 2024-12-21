@@ -1,1 +1,64 @@
-calculator
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"strings"
+
+	"calc_service/internal/calc"
+)
+
+type CalculationRequest struct {
+	Expression string `json:"expression"`
+}
+
+type CalculationResponse struct {
+	Result string `json:"result,omitempty"`
+	Error  string `json:"error,omitempty"`
+}
+
+func calculateHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req CalculationRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, `{"error": "Invalid JSON format"}`, http.StatusBadRequest)
+		return
+	}
+
+	expression := strings.TrimSpace(req.Expression)
+	if expression == "" {
+		http.Error(w, `{"error": "Expression cannot be empty"}`, http.StatusUnprocessableEntity)
+		return
+	}
+
+	result, err := calc.Calc(expression)
+	var resp CalculationResponse
+
+	if err != nil {
+		if strings.Contains(err.Error(), "недопустимый символ") {
+			resp.Error = "Expression is not valid"
+			w.WriteHeader(http.StatusUnprocessableEntity)
+		} else {
+			resp.Error = "Internal server error"
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	} else {
+		resp.Result = fmt.Sprintf("%f", result)
+		w.WriteHeader(http.StatusOK)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func main() {
+	http.HandleFunc("/api/v1/calculate", calculateHandler)
+	fmt.Println("Server is running on http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
