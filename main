@@ -21,7 +21,7 @@ type CalculationResponse struct {
 
 func calculateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		http.Error(w, {"error": "Invalid method"}, http.StatusMethodNotAllowed)
 		return
 	}
 
