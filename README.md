@@ -27,4 +27,4 @@ curl --location 'http://localhost:8080/api/v1/calculate' \
 Вычислитель считает результат по постфиксной записи.
 HTTP-сервер обрабатывает запросы и возвращает JSON-ответы.
 Как запустить: Выполните команду:
-go run ./cmd/calc_service/...
+go run ./cmd/calc_service/internal-calc
