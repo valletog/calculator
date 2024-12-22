@@ -1,72 +1,39 @@
-package calc
-
-import (
-	"errors"
-	"fmt"
-	"strconv"
-	"strings"
-)
-
-func Calc(expression string) (float64, error) {
-	tokens := tokenize(expression)
-	postfix, err := infixToPostfix(tokens)
-	if err != nil {
-		return 0, err
-	}
-	return evaluatePostfix(postfix)
+curl --location 'http://localhost:8080/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{
+  "expression": "2+2*2"
+}'
+Ответ:
+{
+  "result": "6.000000"
 }
 
-func tokenize(expr string) []string {
-	var tokens []string
-	var currentToken strings.Builder
-
-	for _, char := range expr {
-		switch char {
-		case ' ':
-			continue
-		case '+', '-', '*', '/', '(', ')':
-			if currentToken.Len() > 0 {
-				tokens = append(tokens, currentToken.String())
-				currentToken.Reset()
-			}
-			tokens = append(tokens, string(char))
-		default:
-			currentToken.WriteRune(char)
-		}
-	}
-
-	if currentToken.Len() > 0 {
-		tokens = append(tokens, currentToken.String())
-	}
-
-	return tokens
+curl --location 'http://localhost:8080/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{
+  "expression": ""
+}'
+Ответ:
+{
+  "error": "Expression cannot be empty"
 }
 
-func infixToPostfix(tokens []string) ([]string, error) {
-	// (Логика из вашего примера)
+curl --location 'http://localhost:8080/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{
+  "expression": "2+2a"
+}'
+Ответ:
+
+{
+  "error": "Expression is not valid"
 }
 
-func evaluatePostfix(postfix []string) (float64, error) {
-	// (Логика из вашего примера)
-}
+curl --location 'http://localhost:8080/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--request GET
 
-func isNumber(token string) bool {
-	_, err := strconv.ParseFloat(token, 64)
-	return err == nil
+Ответ:
+{
+  "error": "Invalid method"
 }
-
-func isOperator(token string) bool {
-	return token == "+" || token == "-" || token == "*" || token == "/"
-}
-
-func precedence(op string) int {
-	switch op {
-	case "+", "-":
-		return 1
-	case "*", "/":
-		return 2
-	default:
-		return 0
-	}
-}
-
